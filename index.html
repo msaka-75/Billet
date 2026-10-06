@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Joyeux Anniversaire ❤️</title>
+  <!-- Police moderne et script confettis -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: #ffffff;
+      --primary: #f43f5e;
+      --primary-hover: #e11d48;
+      --text-dark: #1e293b;
+      --text-muted: #64748b;
+      --line-color: #cbd5e1;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      color: #fff;
+    }
+
+    .subtitle {
+      color: #94a3b8;
+      font-size: 0.95rem;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+
+    /* Le Billet d'embarquement */
+    .ticket-container {
+      perspective: 1000px;
+      max-width: 680px;
+      width: 100%;
+    }
+
+    .ticket {
+      background: var(--card-bg);
+      border-radius: 20px;
+      display: flex;
+      color: var(--text-dark);
+      position: relative;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+      overflow: hidden;
+      transition: transform 0.3s ease;
+    }
+
+    .ticket-main {
+      flex: 2;
+      padding: 30px;
+    }
+
+    .ticket-stub {
+      flex: 1;
+      padding: 30px 24px;
+      background: #f8fafc;
+      border-left: 2px dashed var(--line-color);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+    }
+
+    /* Encoches du billet */
+    .ticket-stub::before, .ticket-stub::after {
+      content: '';
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      background: var(--bg);
+      border-radius: 50%;
+      left: -12px;
+    }
+    .ticket-stub::before { top: -12px; }
+    .ticket-stub::after { bottom: -12px; }
+
+    /* En-tête du ticket */
+    .ticket-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      border-bottom: 1px solid #f1f5f9;
+      padding-bottom: 12px;
+    }
+
+    .airline-name {
+      font-weight: 700;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-size: 0.85rem;
+    }
+
+    .flight-type {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* Trajet */
+    .route {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .station-code {
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+
+    .station-name {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .route-arrow {
+      color: var(--primary);
+      font-size: 1.4rem;
+    }
+
+    /* Grille d'infos */
+    .ticket-info {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .info-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .info-value {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-dark);
+      margin-top: 2px;
+    }
+
+    /* Partie détachable droite */
+    .stub-header {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .stub-code {
+      font-family: 'Space Mono', monospace;
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin: 8px 0;
+    }
+
+    .barcode {
+      height: 40px;
+      background: repeating-linear-gradient(
+        to right,
+        #000,
+        #000 2px,
+        transparent 2px,
+        transparent 4px,
+        #000 4px,
+        #000 7px
+      );
+      width: 100%;
+      margin: 16px 0;
+      opacity: 0.7;
+    }
+
+    /* Bouton d'action */
+    .validate-btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      transition: background 0.2s ease;
+    }
+
+    .validate-btn:hover {
+      background: var(--primary-hover);
+    }
+
+    /* Modal / Message secret */
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(8px);
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      z-index: 100;
+    }
+
+    .modal-content {
+      background: #fff;
+      color: var(--text-dark);
+      padding: 36px 30px;
+      border-radius: 20px;
+      max-width: 480px;
+      width: 100%;
+      text-align: center;
+      position: relative;
+      animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes popIn {
+      from { transform: scale(0.85); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .modal h2 {
+      font-size: 1.5rem;
+      margin-bottom: 14px;
+      color: var(--primary);
+    }
+
+    .modal p {
+      font-size: 0.95rem;
+      line-height: 1.6;
+      color: #334155;
+      margin-bottom: 20px;
+    }
+
+    .close-btn {
+      background: #f1f5f9;
+      color: var(--text-dark);
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* Responsive mobile */
+    @media (max-width: 600px) {
+      .ticket {
+        flex-direction: column;
+      }
+      .ticket-stub {
+        border-left: none;
+        border-top: 2px dashed var(--line-color);
+      }
+      .ticket-stub::before, .ticket-stub::after {
+        top: -12px;
+      }
+      .ticket-stub::before { left: -12px; }
+      .ticket-stub::after { right: -12px; left: auto; }
+    }
+  </style>
+</head>
+<body>
+
+  <p class="subtitle">Une réservation spéciale a été émise pour le 7 octobre…</p>
+
+  <div class="ticket-container">
+    <div class="ticket">
+      <!-- Partie gauche principale -->
+      <div class="ticket-main">
+        <div class="ticket-header">
+          <span class="airline-name">Distance Airways • First Class</span>
+          <span class="flight-type">CONFIRMÉ #0710</span>
+        </div>
+
+        <div class="route">
+          <div>
+            <!-- Remplace par l'abréviation de sa ville (ex: PAR, LIL, TLS) -->
+            <div class="station-code">DVN</div>
+            <div class="station-name">Douvaine</div>
+          </div>
+          <div class="route-arrow">✈</div>
+          <div>
+            <!-- Remplace par l'abréviation de ta ville -->
+            <div class="station-code">PAR</div>
+            <div class="station-name">Dans mes bras</div>
+          </div>
+        </div>
+
+       <div class="ticket-info">
+          <div>
+            <div class="info-label">Passagère</div>
+            <div class="info-value">Madame Coumba</div>
+          </div>
+          <div>
+            <div class="info-label">Distance</div>
+            <div class="info-value">~540 km</div>
+          </div>
+          <div>
+            <div class="info-label">Date de départ</div>
+            <div class="info-value">Dès que possible</div>
+          </div>
+          <div>
+            <div class="info-label">Siège</div>
+            <div class="info-value">01A (Réservé à vie)</div>
+          </div>
+        </div>
+
+      <!-- Partie droite détachable -->
+      <div class="ticket-stub">
+        <div>
+          <div class="stub-header">Pass d'accès</div>
+          <div class="stub-code">LOVE-2026</div>
+          <div class="barcode"></div>
+        </div>
+        <button class="validate-btn" onclick="openMessage()">Composter le billet</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lettre d'anniversaire pop-up -->
+  <div class="modal" id="letterModal">
+    <div class="modal-content">
+      <h2>Longue et belle vie à toi ma star 🥲❤️</h2>
+      <p>
+        Je ne sais pas du tout quand est-ce qu'on se verra, en tout cas ce billet que je t'ai spécialement fait, montre que peu la distance on peut toujours offrir un cadeau qui va marqué une personne. Quand on veut, on peut. 
+      <p>
+        Je voulais marquer le coup à ma manière pour ce 7 octobre parce que tu connais ton chef il ne fait pas les choses à moitié. Je suis vraiment pressé de te voir ma star en tout profite de ta journée. J'espère que ça te fera plaisir, c'est la première fois que je vais te le sortir mais je t'aime beaucoup bebew😝❤️.
+      <button class="close-btn" onclick="closeMessage()">Garder précieusement</button>
+    </div>
+  </div>
+
+  <script>
+    function openMessage() {
+      // Pluie de confettis
+      confetti({
+        particleCount: 80,
+        spread: 70,
+        origin: { y: 0.6 }
+      });
+
+      document.getElementById('letterModal').style.display = 'flex';
+    }
+
+    function closeMessage() {
+      document.getElementById('letterModal').style.display = 'none';
+    }
+  </script>
+</body>
+</html>
